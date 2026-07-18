@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script>(function(w,i,g){w[g]=w[g]||[];if(typeof w[g].push=='function')w[g].push(i)})
+(window,'GT-5MCJDFHT','google_tags_first_party');</script><script async src="/ej6j/"></script>
+			<script>
+				window.dataLayer = window.dataLayer || [];
+				function gtag(){dataLayer.push(arguments);}
+				gtag('js', new Date());
+				gtag('set', 'developer_id.dY2E1Nz', true);
+				
+			</script>
+			
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity WebGL Player | Hot Wheels Race Off</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+  <link rel="manifest" href="manifest.webmanifest">
+<!-- H5_MADKIDGAMES_UNITY_PATCH -->
+<script>
+window.unityInstance = null;
+</script>
+
+<!-- H5_MADKIDGAMES_DOMAIN_GUARD -->
+<script>
+(function () {
+  const BRAND = 'MadKidGames';
+  const WHITELIST_URL = 'https://www.madkidgames.com/whitelisted.json';
+  const GAME_ENUM = 'HOT_WHEELS_RACE_OFF';
+  const OFFICIAL_SITE = 'https://www.madkidgames.com';
+  const REDIRECT_DELAY = 300000;
+
+  // --------------------------------------------------
+  // HELPERS
+  // --------------------------------------------------
+  function normalize(d) {
+    return (d || '')
+      .toLowerCase()
+      .replace(/^www\\./, '')
+      .replace(/:\\d+$/, '');
+  }
+
+  function safe(fn) {
+    try {
+      const v = fn();
+      return v ? normalize(v) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function getFlag(flags, key, def) {
+    return flags && flags[key] !== undefined ? flags[key] : def;
+  }
+
+  let DEBUG = false;
+  function dlog() { if (DEBUG) console.log.apply(console, arguments); }
+  function dwarn() { if (DEBUG) console.warn.apply(console, arguments); }
+
+  const selfHost = normalize(location.hostname);
+
+  // --------------------------------------------------
+  // JS DOMAIN DETECTION (UNCHANGED)
+  // --------------------------------------------------
+  const signals = [];
+
+  signals.push(safe(() =>
+    window.location.ancestorOrigins &&
+    window.location.ancestorOrigins.length > 0 &&
+    new URL(window.location.ancestorOrigins[0]).hostname
+  ));
+
+  signals.push(safe(() => window.top?.location?.hostname));
+  signals.push(safe(() => window.parent?.location?.hostname));
+  signals.push(safe(() => document.referrer && new URL(document.referrer).hostname));
+  signals.push(safe(() => window.opener?.location?.hostname));
+
+  try {
+    const nav = performance.getEntriesByType('navigation')[0];
+    if (nav?.name) {
+      signals.push(normalize(new URL(nav.name).hostname));
+    }
+  } catch {}
+
+  signals.push(selfHost);
+
+  const uniqueSignals = [...new Set(signals.filter(Boolean))];
+  const foreignSignals = uniqueSignals.filter(d => d !== selfHost);
+  const jsEmbeddingDomain = foreignSignals.length > 0 ? foreignSignals[0] : selfHost;
+
+  // --------------------------------------------------
+  // UNITY HANDSHAKE
+  // --------------------------------------------------
+  function waitForUnity(cb) {
+    const t = setInterval(() => {
+      if (window.unityInstance && window.unityInstance.SendMessage) {
+        clearInterval(t);
+        cb();
+      }
+    }, 100);
+  }
+
+  // --------------------------------------------------
+  // WHITELIST CHECK (CHECK ALWAYS, ENFORCE OPTIONALLY)
+  // --------------------------------------------------
+  fetch(WHITELIST_URL + '?v=' + Date.now(), { cache: 'no-store' })
+    .then(r => r.json())
+    .then(json => {
+      const flags = json.flags || {};
+
+      DEBUG = getFlag(flags, 'debug_logs', false);
+
+      const APPLY_ENFORCEMENT =
+        getFlag(flags, 'redirect_on_reject', false);
+
+      const CHECK_DOMAIN =
+        getFlag(flags, 'enforce_domain_check', true);
+
+      dlog('[H5] Domain guard initialized');
+      dlog('[H5] Game enum:', GAME_ENUM);
+      dlog('[H5] Self host:', selfHost);
+      dlog('[H5] Detected embedding domain:', jsEmbeddingDomain);
+      dlog('[H5] Flags:', flags);
+
+      const game = (json.whitelisted_games || []).find(
+        g => g.game_enum === GAME_ENUM
+      );
+
+      const allowedDomains =
+        (json.allowed_domains || []).map(normalize);
+
+      let allowed = true;
+
+      if (CHECK_DOMAIN) {
+        allowed =
+          !!game &&
+          allowedDomains.includes(jsEmbeddingDomain);
+
+        dlog('[H5] Allowed domains:', allowedDomains);
+        dlog('[H5] Domain allowed:', allowed);
+      }
+
+      // --------------------------------------------------
+      // FINAL DECISION (LOGIC PRESERVED, ENFORCEMENT GATED)
+      // --------------------------------------------------
+      waitForUnity(() => {
+        if (allowed || !APPLY_ENFORCEMENT) {
+          dlog('[H5][' + BRAND + '] DOMAIN APPROVED');
+          unityInstance.SendMessage('H5MadKidGames', 'H5_OnDomainApproved');
+        } else {
+          dwarn('[H5][' + BRAND + '] DOMAIN REJECTED');
+          unityInstance.SendMessage('H5MadKidGames', 'H5_OnDomainRejected');
+
+          setTimeout(() => {
+            try {
+              window.top.location.href =
+                game?.original_game_url || OFFICIAL_SITE;
+            } catch {
+              location.href = OFFICIAL_SITE;
+            }
+          }, REDIRECT_DELAY);
+        }
+      });
+    })
+    .catch(err => {
+      console.error('[H5] Whitelist fetch failed', err);
+
+      // Fail-open (never block by default)
+      waitForUnity(() => {
+        unityInstance.SendMessage('H5MadKidGames', 'H5_OnDomainApproved');
+      });
+    });
+})();
+</script>
+
+<!-- H5_MADKIDGAMES_ADS_INJECTED -->
+<script async
+data-ad-frequency-hint="30s"
+data-ad-channel="8806355381"
+src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2328712687113561"
+crossorigin="anonymous">
+</script>
+<script>
+window.adsbygoogle = window.adsbygoogle || [];
+var adBreak = adConfig = function(o) { adsbygoogle.push(o); };
+</script>
+
+</head>
+<body>
+  <div id="unity-container">
+    <canvas id="unity-canvas" width=960 height=540 tabindex="-1"></canvas>
+
+    <div id="unity-loading-bar">
+      <div id="unity-logo">
+        <img src="thumb_2.jpg" alt="Game Logo" id="unity-logo-img" />
+      </div>
+      <div id="unity-game-name">Hot Wheels Race Off</div>
+      <div id="unity-company-name">by madkidgames.com</div>
+
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
+      </div>
+
+      <!-- ✅ Spinner placed inside loading bar -->
+      <div id="custom-loading-spinner">
+        <div class="spinner"></div>
+        <div class="spinner-text">Loading...</div>
+      </div>
+    </div>
+
+    <div id="unity-warning"></div>
+  </div>
+
+  <!-- Show spinner + loading bar immediately -->
+  <script>
+    const loadingBar = document.querySelector("#unity-loading-bar");
+    const spinner = document.getElementById("custom-loading-spinner");
+    if (loadingBar) loadingBar.style.display = "block";
+    if (spinner) spinner.style.display = "flex";
+  </script>
+
+  <script>
+    window.addEventListener("load", function () {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("ServiceWorker.js");
+      }
+    });
+
+    const container = document.querySelector("#unity-container");
+    const canvas = document.querySelector("#unity-canvas");
+    const progressBarFull = document.querySelector("#unity-progress-bar-full");
+    const warningBanner = document.querySelector("#unity-warning");
+
+    function unityShowBanner(msg, type) {
+      function updateBannerVisibility() {
+        warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+      }
+      const div = document.createElement('div');
+      div.innerHTML = msg;
+      warningBanner.appendChild(div);
+      if (type == 'error') div.style = 'background: red; padding: 10px;';
+      else {
+        if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+        setTimeout(function () {
+          warningBanner.removeChild(div);
+          updateBannerVisibility();
+        }, 5000);
+      }
+      updateBannerVisibility();
+    }
+
+    const buildUrl = "Build";
+    const loaderUrl = buildUrl + "/7a2dbded24d57e056180125b1583e7c4.loader.js";
+
+    const config = {
+      dataUrl: buildUrl + "/7aa58569a745d3a7067e52af05e7fb6f.data.br",
+      frameworkUrl: buildUrl + "/cb68df8b6138accfef441a97d929e28f.framework.js.br",
+      codeUrl: buildUrl + "/78a19b693935f3d4c4d402beb26482fe.wasm.br",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "madkidgames.com",
+      productName: "Hot Wheels Race Off",
+      productVersion: "1.1.11595",
+      showBanner: unityShowBanner,
+    };
+
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      const meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+
+    canvas.style.background = "url('" + buildUrl + "/74ef17f51df309ca33050fe5cdcda334.jpg') center / cover";
+
+    const script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+        progressBarFull.style.width = 100 * progress + "%";
+      }).then((instance) => {
+window.unityInstance = instance;
+        loadingBar.style.display = "none";
+        if (spinner) spinner.style.display = "none";
+      }).catch((message) => {
+        alert(message);
+      });
+    };
+    document.body.appendChild(script);
+  </script>
+
+<!-- INJECTED_BY: WebGLCanvasResizeInjectorLandscape -->
+<script>
+(function () {
+  function resizeUnityCanvas() {
+    const canvas = document.getElementById('unity-canvas');
+    if (!canvas) return;
+
+    const targetAspect = 16 / 9;
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    let newWidth = windowWidth;
+    let newHeight = windowWidth / targetAspect;
+
+    if (newHeight > windowHeight) {
+      newHeight = windowHeight;
+      newWidth = newHeight * targetAspect;
+    }
+
+    canvas.style.width = newWidth + 'px';
+    canvas.style.height = newHeight + 'px';
+  }
+
+  window.addEventListener('load', resizeUnityCanvas);
+  window.addEventListener('resize', resizeUnityCanvas);
+  window.addEventListener('orientationchange', resizeUnityCanvas);
+})();
+</script>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"0a7c7133c4e648d097398256f74bcfc1","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
