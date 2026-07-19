@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <title>Hot Wheels Race Off</title>
+  <style>
+    html,body,#unity-container{width:100%;height:100%;margin:0;overflow:hidden;background:#111}
+    #unity-container{display:flex;align-items:center;justify-content:center;position:relative}
+    #unity-canvas{width:100%;height:100%;background:#111}
+    #loading{position:absolute;color:#fff;font:700 20px Arial,sans-serif;text-align:center}
+    #progress{width:280px;height:12px;margin-top:12px;border:2px solid #fff;border-radius:8px;overflow:hidden}
+    #progress-fill{width:0;height:100%;background:#e32119}
+    #warning{position:absolute;top:0;left:0;right:0;color:#111;text-align:center;font:14px Arial,sans-serif}
+  </style>
+  <script src="raceoff.assets.js"></script>
+  <script src="raceoff.framework.js"></script>
+  <script src="raceoff.wasm.js"></script>
+  <script src="raceoff.data.1.js"></script>
+  <script src="raceoff.data.2.js"></script>
+  <script src="raceoff.assets.finalize.js"></script>
+</head>
+<body>
+  <div id="unity-container">
+    <canvas id="unity-canvas" width="960" height="540" tabindex="-1"></canvas>
+    <div id="loading">Loading Hot Wheels Race Off<div id="progress"><div id="progress-fill"></div></div></div>
+    <div id="warning"></div>
+  </div>
+  <script>
+    var canvas = document.getElementById('unity-canvas');
+    var loading = document.getElementById('loading');
+    var progress = document.getElementById('progress-fill');
+    var warning = document.getElementById('warning');
+
+    function showBanner(message, type) {
+      var item = document.createElement('div');
+      item.textContent = message;
+      item.style.padding = '8px';
+      item.style.background = type === 'error' ? '#e55' : '#ffeb75';
+      warning.appendChild(item);
+    }
+
+    var config = {
+      dataUrl: RaceOffAssets.dataUrl,
+      frameworkUrl: RaceOffAssets.frameworkUrl,
+      codeUrl: RaceOffAssets.codeUrl,
+      streamingAssetsUrl: 'StreamingAssets',
+      companyName: 'madkidgames.com',
+      productName: 'Hot Wheels Race Off',
+      productVersion: '1.1.11595',
+      showBanner: showBanner
+    };
+
+    var loader = document.createElement('script');
+    loader.src = '7a2dbded24d57e056180125b1583e7c4.loader.js';
+    loader.onload = function () {
+      createUnityInstance(canvas, config, function (value) {
+        progress.style.width = (value * 100) + '%';
+      }).then(function (instance) {
+        window.unityInstance = instance;
+        loading.style.display = 'none';
+      }).catch(function (error) {
+        showBanner(String(error), 'error');
+      });
+    };
+    document.body.appendChild(loader);
+  </script>
+</body>
+</html>

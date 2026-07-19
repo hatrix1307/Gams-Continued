@@ -1,0 +1,1 @@
+window.RaceOffAssets={frameworkUrl:RaceOffCreateBlobUrl(RaceOffAssetChunks.framework,'text/javascript'),codeUrl:RaceOffCreateBlobUrl(RaceOffAssetChunks.wasm,'application/wasm'),dataUrl:RaceOffCreateBlobUrl(RaceOffAssetChunks.data,'application/octet-stream')};
