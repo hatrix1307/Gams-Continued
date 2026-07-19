@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
+  <title>PolyTrack</title>
+  <script>
+    window.polytrackModConfiguration = {
+      modName: "offline edition",
+      author: "Gams",
+      unblocked: true
+    };
+  </script>
+  <script src="offline-assets.js"></script>
+  <script src="offline-runtime.js?v=10"></script>
+  <script defer src="error_screen.bundle.js"></script>
+  <script defer src="main.bundle.js"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", function () {
+      var revealMenu = setInterval(function () {
+        if (document.querySelector(".loading-ui")) return;
+        var menu = document.querySelector(".menu-ui.loading-screen");
+        if (menu) menu.classList.remove("loading-screen");
+        var controls = document.querySelector(".main-buttons-container");
+        if (controls) controls.classList.remove("hidden");
+        clearInterval(revealMenu);
+      }, 100);
+    });
+  </script>
+</head>
+<body>
+  <canvas id="screen"></canvas>
+  <div id="ui"></div>
+  <div id="transition-layer"></div>
+</body>
+</html>
