@@ -46,7 +46,7 @@ function UnityProgress(gameInstance, progress) {
     }
     */
 
-    if (progress == 'complete') {
+    if (progress === 'complete' || progress >= 1) {
         SendMessage = gameInstance.SendMessage;
         gameInstance.logo.style.display = 'none';
         gameInstance.progress.style.display = 'none';

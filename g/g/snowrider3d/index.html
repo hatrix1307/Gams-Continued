@@ -199,6 +199,14 @@ function createFileList(readFiles, fileNames) {
  var fileList = {};
  readFiles.forEach(function(readFile, i) {
   var fileName = fileNames[i];
+  if (fileName.replace(/\\/g, "/").endsWith("TemplateData/UnityProgress.js")) {
+   var progressSource = new TextDecoder().decode(readFile);
+   progressSource = progressSource.replace(
+    /if\s*\(\s*progress\s*==+\s*["']complete["']\s*\)\s*\{/,
+    "if (progress === 'complete' || progress >= 1) {"
+   );
+   readFile = new TextEncoder().encode(progressSource);
+  }
   var mime = getMimeType(fileName);
   var blob = new Blob([readFile.buffer], {type: mime});
   var blobURL = URL.createObjectURL(blob);
