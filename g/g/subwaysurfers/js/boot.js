@@ -48,7 +48,7 @@ function initApp()
     }
 
     loadScript('./js/dependencies.bundle.js');
-    loadScript(window.MAIN ? window.MAIN : './js/index.js');
+    loadScript(window.MAIN ? window.MAIN : './js/index.js?v=self-hosted-1');
 }
 
 /** Prevent arrows and space from scrolling browser */
@@ -107,4 +107,3 @@ registerServiceWorker(function ()
         initApp();
     });
 });
-
