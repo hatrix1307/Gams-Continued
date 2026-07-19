@@ -23,6 +23,34 @@
       <div id="unity-progress-bar-empty"><div id="unity-progress-bar-full"></div></div>
     </div>
   </div>
+  <script>
+    // The hosted build supplies these through its advertising SDK. In the
+    // offline copy, ads are unavailable, so acknowledge each request without
+    // interrupting Unity's player loop.
+    window.showInterstitialAd = function () {
+      setTimeout(function () {
+        if (window.spaceWavesUnity) {
+          window.spaceWavesUnity.SendMessage("MSStartSDK", "OnInterstitialAdClose");
+        }
+        window.setFocus();
+      }, 0);
+    };
+    window.showRewardedAd = function () {
+      setTimeout(function () {
+        if (window.spaceWavesUnity) {
+          window.spaceWavesUnity.SendMessage("MSStartSDK", "OnRewardedAdShowError");
+        }
+        window.setFocus();
+      }, 0);
+    };
+    window.showRewardedVideo = function () {};
+    window.showBannerAd = function () {};
+    window.hideBannerAd = function () {};
+    window.setFocus = function () {
+      var gameCanvas = document.querySelector("#unity-canvas");
+      if (gameCanvas) gameCanvas.focus();
+    };
+  </script>
   <script src="offline-assets.js"></script>
   <script src="offline-runtime.js"></script>
   <script>
@@ -44,7 +72,8 @@
     loader.onload = function () {
       createUnityInstance(canvas, config, function (progress) {
         progressBar.style.width = (progress * 100) + "%";
-      }).then(function () {
+      }).then(function (instance) {
+        window.spaceWavesUnity = instance;
         loadingCover.style.display = "none";
         canvas.focus();
       }).catch(function (error) {
