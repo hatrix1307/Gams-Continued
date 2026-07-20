@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <title>Crossy Road</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="/game/crossy-road/">
+  <meta name="title" content="Crossy Road Online!">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="shortcut icon" href="favicon.png">
+  <link rel="stylesheet" href="TemplateData/style.css">
+  <script>window.open=function(){return null};</script>
+  <script src="offline-loader.js"></script>
+  <style>
+    @font-face {
+      font-family: BRLNSDB;
+      src: url('BRLNSDB.TTF');
+    }
+
+    .font1 {
+      font-family: BRLNSDB;
+      position: absolute;
+      left: -10000px;
+      visibility: hidden;
+    }
+  </style>
+</head>
+
+<body class="dark">
+  <div class="font1">.</div>
+  <div id="unity-container" class="unity-desktop">
+    <canvas id="unity-canvas"></canvas>
+  </div>
+  <div id="loading-cover" style="display:none;">
+    <div id="unity-loading-bar">
+      <div style="position: absolute; bottom: 10px; right: 10px; font-size: 18px; color: #000; opacity: 0.5;">crossy-road</div>
+      <img src="loading.png?v=1" id="ld_bg" style="width: 100%; height: 100%; object-fit: cover;">
+      <canvas id="logo-canvas" style="position: absolute; background-color: transparent;">
+        <img src="loading_fill.png" id="ld_fill">
+        <img src="loading_bar.png" id="ld_bar">
+        <img src="logo.png" id="logo">
+      </canvas>
+    </div>
+  </div>
+  <script>
+    const container = document.querySelector("#unity-container");
+    const canvas = document.querySelector("#unity-canvas");
+    const loadingCover = document.querySelector("#loading-cover");
+    const fullscreenButton = document.querySelector("#unity-fullscreen-button");
+    const buildUrl = "Build";
+    const loaderUrl = buildUrl + "/crossy-road.loader.js";
+    const config = {
+      dataUrl: buildUrl + "/crossy-road.data.unityweb?v=2",
+      frameworkUrl: buildUrl + "/crossy-road.framework.js.unityweb",
+      codeUrl: buildUrl + "/crossy-road.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "ozgames.io",
+      productName: "Crossy Road",
+      productVersion: "1.0",
+    };
+
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      container.className = "unity-mobile";
+      config.devicePixelRatio = 1;
+    }
+
+    function delay(ms) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve();
+        }, ms);
+      });
+    }
+
+    async function load() {
+      logo_loaded = false;
+      createUnityInstance(canvas, config, (progress) => {
+        logo_loading_percent = progress;
+        drawCanvas(progress);
+      }).then((unityInstance) => {
+        window.unityInstance = unityInstance;
+        setTimeout(() => {
+          loadingCover.style.display = "none";
+          logo_loaded = true;
+        }, 2000);
+      }).catch((message) => {
+        alert(message);
+      });
+    }
+
+    loadingCover.style.display = "";
+    var logo_loaded = false;
+    var logo_loading_percent = 0;
+
+    window.onresize = () => {
+      drawCanvas(logo_loading_percent);
+    }
+    window.onload = () => {
+      drawCanvas(logo_loading_percent);
+    }
+
+    var logo_canvas = document.getElementById("logo-canvas");
+
+    function drawCanvas(_percent = 0) {
+      if (logo_loaded) {
+        return;
+      }
+      resizeLogoCanvas();
+      var ctx = logo_canvas.getContext("2d");
+      var logo = document.getElementById("logo");
+      var ld_fill = document.getElementById("ld_fill");
+      var ld_bar = document.getElementById("ld_bar");
+      var _sw = logo_canvas.width / 1920;
+      var _sh = logo_canvas.height / 1080;
+
+      if (_percent > 1) {
+        _percent = 1;
+      }
+
+      var pl = 890 * _percent;
+      var pw = 900 - pl;
+      pl = pl + 510;
+      ctx.drawImage(logo, 622.5 * _sw, 77 * _sh, 675 * _sw, 396 * _sh);
+      ctx.drawImage(ld_bar, 510 * _sw, logo_canvas.height - (115.5 * _sh), 900 * _sw, 44 * _sh);
+      ctx.drawImage(ld_fill, pl * _sw, logo_canvas.height - (111 * _sh), pw * _sw, 35 * _sh);
+
+      var _fontSize = 32 * _sw;
+      ctx.font = _fontSize.toString() + "px BRLNSDB";
+      ctx.fillStyle = "#ffffff";
+      ctx.textAligh = "center";
+      ctx.lineWidth = 5 * _sw;
+      ctx.strokeStyle = '#000000';
+      let _txt = (Math.floor(_percent * 100)).toString() + '%';
+      let _tx = logo_canvas.width * 0.5 - ctx.measureText(_txt).width * 0.5 * _sw - 20 * _sw;
+      let _ty = logo_canvas.height * 0.5 + 455 * _sh;
+      ctx.strokeText(_txt, _tx, _ty);
+      ctx.fillText(_txt, _tx, _ty);
+    }
+
+    function resizeLogoCanvas() {
+      var _w = window.innerWidth;
+      var _h = window.innerHeight;
+      var _nw = _h * 16 / 9;
+      if (_nw <= _w) {
+        logo_canvas.width = _nw;
+        logo_canvas.height = _h;
+      } else {
+        logo_canvas.width = _w;
+        logo_canvas.height = _w * 9 / 16;
+      }
+    }
+
+    async function startCrossyRoad() {
+      try {
+        await prepareCrossyRoadFiles(config, (progress) => {
+          logo_loading_percent = progress;
+          drawCanvas(progress);
+        });
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = load;
+        document.body.appendChild(script);
+      } catch (error) {
+        alert(error.message || error);
+      }
+    }
+    startCrossyRoad();
+  </script>
+  <script>
+    function createSuperProxy() {
+      const handler = {
+        get(target, prop) {
+          if (prop === 'then') return (cb) => {
+            cb && cb(superProxy);
+            return superProxy;
+          };
+          if (prop === 'catch') return () => superProxy;
+          if (prop === 'finally') return () => superProxy;
+          return superProxy;
+        },
+        apply() {
+          return superProxy;
+        }
+      };
+
+      function dummy() {
+        return dummy;
+      }
+      const superProxy = new Proxy(dummy, handler);
+      return superProxy;
+    }
+    window.firebase = createSuperProxy();
+    window.gtag = function() {};
+  </script>
+
+</body>
+
+</html>
