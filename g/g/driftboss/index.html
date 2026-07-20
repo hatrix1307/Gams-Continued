@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Drift Boss</title>
+	<meta name="description" content="Drift Boss is a one-button endless drifting game where you must steer your vehicle across a platform with tricky bends and bumps whilst avoiding falling off the edge.">
+	<link rel="icon" type="image/png" href="../../../img/driftboss.png" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<!-- Use this metatag when Apple fixes their IOS 9
+	<meta name="viewport" content="width=device-width,height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, minimal-ui"/>
+	-->
+
+	<!--Temporary fix for IOS 9-->
+	<meta name="viewport" content="initial-scale=1.0001, minimum-scale=1.0001, maximum-scale=1.0001, user-scalable=no, minimal-ui" />
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+
+	<link rel="stylesheet" type="text/css" href="game.css">
+	<style>
+	html,body,#ajaxbar,#game,#webgl{width:100%;height:100%;margin:0;overflow:hidden}canvas{max-width:100%;max-height:100%}
+	#offlineLoading{position:fixed;z-index:2147483647;inset:0;display:flex;align-items:center;justify-content:center;background:#111;color:#fff;font-family:Arial,sans-serif;transition:opacity .3s ease}
+	#offlineLoading.done{opacity:0;pointer-events:none}
+	.offline-loading-box{width:min(520px,78vw);text-align:center}
+	.offline-loading-title{margin:0 0 22px;font-size:clamp(28px,6vw,48px);font-weight:700}
+	.offline-loading-track{height:18px;padding:3px;border:2px solid #fff;border-radius:12px;background:#242424;overflow:hidden}
+	#offlineLoadingBar{width:4%;height:100%;border-radius:8px;background:#18b9ee;transition:width .18s ease}
+	#offlineLoadingBar.indeterminate{width:38%;background:linear-gradient(90deg,#087ba3,#20c9ff,#087ba3);background-size:200% 100%;animation:driftEngineLoading 1.1s linear infinite;transition:none}
+	@keyframes driftEngineLoading{0%{transform:translateX(-115%);background-position:100% 0}100%{transform:translateX(265%);background-position:-100% 0}}
+	#offlineLoadingText{margin-top:12px;color:#ccc;font-size:14px}
+	</style>
+	<!-- AnalyticsCode -->
+  	<meta name="robots" content="noindex,nofollow" />
+	<!-- APICode -->
+</head>
+
+<body onload="setTimeout(function(){window.scrollTo(0,1)},1);">
+	<div id="offlineLoading" role="status" aria-live="polite">
+		<div class="offline-loading-box">
+			<div class="offline-loading-title">Drift Boss</div>
+			<div class="offline-loading-track"><div id="offlineLoadingBar"></div></div>
+			<div id="offlineLoadingText">Preparing game files… 4%</div>
+		</div>
+	</div>
+	<script>
+	window.DRIFT_LOADING_VALUE=4;
+	window.DRIFT_LOADING_PROGRESS=function(percent,label){
+		var bar=document.getElementById('offlineLoadingBar');
+		var text=document.getElementById('offlineLoadingText');
+		window.DRIFT_LOADING_VALUE=Math.max(window.DRIFT_LOADING_VALUE,Math.min(100,percent));
+		if(bar){bar.classList.remove('indeterminate');bar.style.width=window.DRIFT_LOADING_VALUE+'%'}
+		if(text)text.textContent=(label||'Loading game…')+' '+Math.round(window.DRIFT_LOADING_VALUE)+'%';
+	};
+	window.DRIFT_LOADING_INDETERMINATE=function(label){
+		var bar=document.getElementById('offlineLoadingBar');
+		var text=document.getElementById('offlineLoadingText');
+		if(bar){bar.style.width='';bar.classList.add('indeterminate')}
+		if(text)text.textContent=label||'Loading game engine…';
+	};
+	(function(){
+		var originalLog=console.log;
+		console.log=function(){
+			originalLog.apply(console,arguments);
+			var message=Array.prototype.map.call(arguments,String).join(' ');
+			if(/sdk is ready/i.test(message))window.DRIFT_LOADING_PROGRESS(48,'Services ready…');
+			else if(/Babylon\.js/i.test(message))window.DRIFT_LOADING_PROGRESS(53,'Starting graphics…');
+			else if(/init babylon/i.test(message))window.DRIFT_LOADING_PROGRESS(57,'Building game world…');
+			else if(/Initiating sound handler/i.test(message))window.DRIFT_LOADING_PROGRESS(60,'Starting audio…');
+			else if(/load scene success/i.test(message))window.DRIFT_LOADING_PROGRESS(76,'Game world ready…');
+		};
+		function watchScript(script){
+			if(!script||script.__driftLoadingWatched)return;
+			var src=script&&script.src||'';
+			if(/main\.min\.js/i.test(src)){
+				script.__driftLoadingWatched=true;
+				window.DRIFT_LOADING_INDETERMINATE('Loading game engine…');
+				script.addEventListener('load',function(){window.DRIFT_LOADING_PROGRESS(44,'Game engine loaded…')},{once:true});
+			}else if(/gamedock-sdk/i.test(src)){
+				script.__driftLoadingWatched=true;
+				window.DRIFT_LOADING_PROGRESS(45,'Loading game services…');
+			}
+		}
+		var nativeInsertBefore=Node.prototype.insertBefore;
+		Node.prototype.insertBefore=function(node,reference){
+			if(node&&node.tagName==='SCRIPT')watchScript(node);
+			return nativeInsertBefore.call(this,node,reference);
+		};
+		var nativeAppendChild=Node.prototype.appendChild;
+		Node.prototype.appendChild=function(node){
+			if(node&&node.tagName==='SCRIPT')watchScript(node);
+			return nativeAppendChild.call(this,node);
+		};
+	})();
+	</script>
+	<script type="text/javascript" src="assets-map.js"></script>
+	<script>window.DRIFT_LOADING_PROGRESS(22,'Game files ready…');</script>
+	<script type="text/javascript" src="offline-runtime.js"></script>
+	<script>window.DRIFT_LOADING_PROGRESS(27,'Starting game engine…');</script>
+	<script type="text/javascript" src="game.js"></script>
+	<script>window.DRIFT_LOADING_PROGRESS(35,'Launching game…');</script>
+	<!--body-->
+
+	<div id="ajaxbar">
+		<div id="game"><canvas id="canvas"></canvas></div>
+		<div id="webgl"><canvas id="webglcanvas"></canvas></div>
+
+		<div id="orientate"><img src="media/graphics/orientate/landscape.jpg" /></div>
+		<div id="play" class="play" onclick=""><img src="media/graphics/splash/mobile/cover-start.jpg" /></div>
+		<!--<img id="scrollDown" width="220" height="277"></img>-->
+
+		<!-- SECTION GENERATED BY CODE -->
+		<div id="MobileAdInGamePreroll">
+			<div id="MobileAdInGamePreroll-Box">
+				<div id="MobileAdInGamePreroll-Box-Header"></div>
+				<a id="MobileAdInGamePreroll-Box-Close" onclick="MobileAdInGamePreroll.Close();"></a>
+				<div id="MobileAdInGamePreroll-Box-Body">
+					<center>
+						<!-- MobileAdInGamePreroll -->
+						<!-- AdTest-MobileAdInGamePreroll -->
+						<!-- EndOfAdTest-MobileAdInGamePreroll -->
+					</center>
+				</div>
+				<div id='MobileAdInGamePreroll-Box-Footer'></div>
+			</div>
+		</div>
+
+		<!-- SECOND AD (ROTATION) -->
+		<div id="MobileAdInGamePreroll2">
+			<div id="MobileAdInGamePreroll2-Box">
+				<div id="MobileAdInGamePreroll2-Box-Header"></div>
+				<a id="MobileAdInGamePreroll2-Box-Close" onclick="MobileAdInGamePreroll.Close();"></a>
+				<div id="MobileAdInGamePreroll2-Box-Body">
+					<center>
+						<!-- MobileAdInGamePreroll2 -->
+					</center>
+				</div>
+				<div id='MobileAdInGamePreroll2-Box-Footer'></div>
+			</div>
+		</div>
+
+		<!-- THIRD AD (ROTATION) -->
+		<div id="MobileAdInGamePreroll3">
+			<div id="MobileAdInGamePreroll3-Box">
+				<div id="MobileAdInGamePreroll3-Box-Header"></div>
+				<a id="MobileAdInGamePreroll3-Box-Close" onclick="MobileAdInGamePreroll.Close();"></a>
+				<div id="MobileAdInGamePreroll3-Box-Body">
+					<center>
+						<!-- MobileAdInGamePreroll3 -->
+					</center>
+				</div>
+				<div id='MobileAdInGamePreroll3-Box-Footer'></div>
+			</div>
+		</div>
+
+		<div id="MobileAdInGameHeader">
+			<!-- MobileAdInGameHeader -->
+		</div>
+		<div id="MobileAdInGameHeader2">
+			<!-- MobileAdInGameHeader2 -->
+		</div>
+		<div id="MobileAdInGameHeader3">
+			<!-- MobileAdInGameHeader3 -->
+		</div>
+
+		<div id="MobileAdInGameFooter">
+			<!-- MobileAdInGameFooter -->
+		</div>
+		<div id="MobileAdInGameFooter2">
+			<!-- MobileAdInGameFooter2 -->
+		</div>
+		<div id="MobileAdInGameFooter3">
+			<!-- MobileAdInGameFooter3 -->
+		</div>
+
+
+		<div id="MobileAdInGameEnd">
+			<div id="MobileAdInGameEnd-Box">
+				<div id="MobileAdInGameEnd-Box-Header"></div>
+				<a id="MobileAdInGameEnd-Box-Close" onclick="MobileAdInGameEnd.Close();"></a>
+				<div id="MobileAdInGameEnd-Box-Body">
+					<center>
+						<!-- MobileAdInGameEnd -->
+					</center>
+				</div>
+				<div id='MobileAdInGameEnd-Box-Footer'></div>
+			</div>
+		</div>
+
+		<!-- SECOND AD (ROTATION) -->
+		<div id="MobileAdInGameEnd2">
+			<div id="MobileAdInGameEnd2-Box">
+				<div id="MobileAdInGameEnd2-Box-Header"></div>
+				<a id="MobileAdInGameEnd2-Box-Close" onclick="MobileAdInGameEnd.Close();"></a>
+				<div id="MobileAdInGameEnd2-Box-Body">
+					<center>
+						<!-- MobileAdInGameEnd2 -->
+					</center>
+				</div>
+				<div id='MobileAdInGameEnd2-Box-Footer'></div>
+			</div>
+		</div>
+
+		<!-- THIRD AD (ROTATION) -->
+		<div id="MobileAdInGameEnd3">
+			<div id="MobileAdInGameEnd3-Box">
+				<div id="MobileAdInGameEnd3-Box-Header"></div>
+				<a id="MobileAdInGameEnd3-Box-Close" onclick="MobileAdInGameEnd.Close();"></a>
+				<div id="MobileAdInGameEnd3-Box-Body">
+					<center>
+						<!-- MobileAdInGameEnd3 -->
+					</center>
+				</div>
+				<div id='MobileAdInGameEnd3-Box-Footer'></div>
+			</div>
+		</div>
+
+		<!-- END OF SECTION GENERATED BY CODE -->
+
+	</div>
+	<!-- <div id="tempdiv"><br><br><br></div> -->
+	<!-- APICode2 -->
+
+
+	<!-- END OF TEST -->
+</body>
+
+</html>

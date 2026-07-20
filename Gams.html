@@ -180,6 +180,11 @@ display: flex;
 margin: 0;
 }
 
+.latest-version {
+color: #34a853;
+font-weight: bold;
+}
+
 .repo-download {
 flex: 0 0 auto;
 display: inline-block;
@@ -215,7 +220,7 @@ text-align: center;
 
 <body onload="setSavedTheme()">
 <header>
-<h1 class="title">Gams</h1>
+<h1 class="title">Gams Continued</h1>
 </header>
 
 <aside class="repo-message" id="repoMessage" aria-live="polite">
@@ -488,6 +493,7 @@ var gamsList = [
 {name: "Ai Creatures", href: "g/g/aicreatures/index.html"},
 {name: "Grey Box Testing", href: "g/g/greybox/index.html"},
 {name: "Snow Rider 3D", href: "g/g/snowrider3d/index.html"},
+{name: "Drift Boss", href: "g/g/driftboss/index.html", img: "img/driftboss.png"},
 {name: "Subway Surfers", href: "g/g/subwaysurfers/index.html", img: "img/subwaysurfers.webp"},
 {name: "Hot Wheels Race Off", href: "g/g/raceoff/index.html", img: "img/raceoff.png"},
 {name: "Space Waves", href: "g/g/spacewaves/index.html", img: "img/spacewaves.png"},
@@ -756,7 +762,7 @@ applyDisguise();
 };
 </script>
 <script>
-const LOCAL_BUILD_VERSION = "2026.07.19.1";
+const LOCAL_BUILD_VERSION = "2026.07.19.10";
 const REPO_VERSION_URL = "https://raw.githubusercontent.com/hatrix1307/Gams-Continued/main/site-version.json";
 
 (async function showRepositoryMessage() {
@@ -785,7 +791,7 @@ if (latest.version !== LOCAL_BUILD_VERSION) {
 text.textContent = "A newer version of Gams is available.";
 download.style.display = "inline-block";
 } else {
-text.textContent = "This is the latest version of Gams.";
+text.innerHTML = 'You are on the <span class="latest-version">latest</span> version of Gams-Continued';
 }
 } catch (error) {
 text.textContent = "The latest version could not be checked. Connect to the internet and reload to try again.";
