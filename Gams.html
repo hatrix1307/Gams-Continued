@@ -791,13 +791,14 @@ applyDisguise();
 };
 </script>
 <script>
-const LOCAL_BUILD_VERSION = "2026.07.20.5";
+const LOCAL_BUILD_VERSION = "2026.07.20.6";
 const REPO_VERSION_URL = "https://raw.githubusercontent.com/hatrix1307/Gams-Continued/main/site-version.json";
 
 (async function showRepositoryMessage() {
 const message = document.getElementById("repoMessage");
 const text = document.getElementById("repoMessageText");
 const download = document.getElementById("repoDownload");
+const actions = message.querySelector(".repo-actions");
 
 if (location.protocol === "https:") {
 text.textContent = "Update an existing Gams folder by downloading only changed files, or download the complete ZIP.";
@@ -808,7 +809,7 @@ return;
 if (location.protocol !== "file:") return;
 
 text.textContent = "Checking the repository for a newer version...";
-download.style.display = "none";
+actions.style.display = "none";
 message.classList.add("visible");
 
 try {
@@ -820,9 +821,10 @@ const latestVersion = String(latest.version || "").trim();
 const localVersion = String(LOCAL_BUILD_VERSION).trim();
 if (latestVersion && latestVersion !== localVersion) {
 text.textContent = "A newer version of Gams is available (installed: " + localVersion + ", latest: " + latestVersion + "). Select your existing folder to update only changed files.";
-download.style.display = "inline-block";
+actions.style.display = "flex";
 } else {
 text.innerHTML = 'You are on the <span class="latest-version">latest</span> version of Gams-Continued';
+actions.style.display = "none";
 }
 } catch (error) {
 text.textContent = "The latest version could not be checked. Connect to the internet and reload to try again.";
