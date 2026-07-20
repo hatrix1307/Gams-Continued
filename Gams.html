@@ -159,6 +159,53 @@ animation:spin 2s linear infinite;
 transform: translateX(-50%) translateY(-50%);
 }
 
+.repo-message {
+display: none;
+align-items: center;
+justify-content: space-between;
+gap: 16px;
+margin: 0 0 22px;
+padding: 14px 16px;
+border: 1px solid var(--nc-tx-1);
+border-radius: 10px;
+background: var(--nc-bg-2);
+color: var(--nc-tx-1);
+}
+
+.repo-message.visible {
+display: flex;
+}
+
+.repo-message p {
+margin: 0;
+}
+
+.repo-download {
+flex: 0 0 auto;
+display: inline-block;
+padding: 9px 14px;
+border: 1px solid var(--nc-tx-1);
+border-radius: 8px;
+background: var(--nc-bg-3);
+color: var(--nc-tx-1);
+font-weight: bold;
+text-decoration: none;
+}
+
+.repo-download:hover {
+filter: brightness(1.15);
+}
+
+@media (max-width: 600px) {
+.repo-message {
+align-items: stretch;
+flex-direction: column;
+}
+.repo-download {
+text-align: center;
+}
+}
+
 @keyframes spin{
 0%{transform:rotate(0deg)}
 100%{transform:rotate(360deg)}
@@ -170,6 +217,11 @@ transform: translateX(-50%) translateY(-50%);
 <header>
 <h1 class="title">Gams</h1>
 </header>
+
+<aside class="repo-message" id="repoMessage" aria-live="polite">
+<p id="repoMessageText"></p>
+<a class="repo-download" id="repoDownload" href="https://codeload.github.com/hatrix1307/Gams-Continued/zip/refs/heads/main" download="Gams-Continued-main.zip">Download latest version</a>
+</aside>
 
 <label>Dark Mode:</label>
 <label class="switch">
@@ -411,11 +463,11 @@ var gamsList = [
 {name: "Fluid Simulator"},
 {name: "Edge Not Found"},
 {name: "Ninja vs EVILCORP"},
-{name: "Geometry Dash Lite", href: "g/g/geometrydashlite/index.html", img: "img/gdlite.png", type: "raw"},
-{name: "Run 1", href: "g/g/run1/index.html", img: "img/run1.png", type: "raw"},
-{name: "Run 2", href: "g/g/run2/index.html", img: "img/run2.png", type: "raw"},
-{name: "Run 3", href: "g/g/run3/index.html", img: "img/run3.jpg", type: "raw"},
-{name: "Google Snake", href: "g/g/snake/index.html", img: "img/snake.png", type: "raw"},
+{name: "Geometry Dash Lite", href: "g/g/geometrydashlite/index.html", img: "img/gdlite.png"},
+{name: "Run 1", href: "g/g/run1/index.html", img: "img/run1.png"},
+{name: "Run 2", href: "g/g/run2/index.html", img: "img/run2.png"},
+{name: "Run 3", href: "g/g/run3/index.html", img: "img/run3.jpg"},
+{name: "Google Snake", href: "g/g/snake/index.html", img: "img/snake.png"},
 {name: "Eaglercraft", href: "g/g/eagler/index.html", img: "img/eagler.png", type: "raw"},
 {name: "Wordle"},
 {name: "Paper IO 2"},
@@ -436,15 +488,15 @@ var gamsList = [
 {name: "Ai Creatures", href: "g/g/aicreatures/index.html"},
 {name: "Grey Box Testing", href: "g/g/greybox/index.html"},
 {name: "Snow Rider 3D", href: "g/g/snowrider3d/index.html"},
-{name: "Subway Surfers", href: "g/g/subwaysurfers/index.html", img: "img/subwaysurfers.webp", type: "raw"},
-{name: "Hot Wheels Race Off", href: "g/g/raceoff/index.html", img: "img/raceoff.png", type: "raw"},
-{name: "Space Waves", href: "g/g/spacewaves/index.html", img: "img/spacewaves.png", type: "raw"},
-{name: "PolyTrack", href: "g/g/polytrack/index.html", img: "img/polytrack.png", type: "raw"},
+{name: "Subway Surfers", href: "g/g/subwaysurfers/index.html", img: "img/subwaysurfers.webp"},
+{name: "Hot Wheels Race Off", href: "g/g/raceoff/index.html", img: "img/raceoff.png"},
+{name: "Space Waves", href: "g/g/spacewaves/index.html", img: "img/spacewaves.png"},
+{name: "PolyTrack", href: "g/g/polytrack/index.html", img: "img/polytrack.png"},
 
 {title: "Retrogaming", type: "section"},
 {name: "Super Mario 64"},
-{name: "Super Mario 64 PC", href: "g/g/supermario64pc/index.html", img: "img/supermario64.png", type: "raw"},
-{name: "N64 Wasm", href: "g/g/n64wasm/dist/index.html", img: "img/webretro.png", type: "raw"},
+{name: "Super Mario 64 PC", href: "g/g/supermario64pc/index.html", img: "img/supermario64.png"},
+{name: "N64 Wasm", href: "g/g/n64wasm/dist/index.html", img: "img/webretro.png"},
 {name: "Celeste"},
 {name: "Just One Boss"},
 {name: "Super Mario RPG"},
@@ -702,6 +754,43 @@ applyDisguise();
 BroadcastDisguise.onmessage = () => {
 applyDisguise();
 };
+</script>
+<script>
+const LOCAL_BUILD_VERSION = "2026.07.19.1";
+const REPO_VERSION_URL = "https://raw.githubusercontent.com/hatrix1307/Gams-Continued/main/site-version.json";
+
+(async function showRepositoryMessage() {
+const message = document.getElementById("repoMessage");
+const text = document.getElementById("repoMessageText");
+const download = document.getElementById("repoDownload");
+
+if (location.protocol === "https:") {
+text.textContent = "Download Gams for offline use. This downloads the latest repository archive without leaving this page.";
+message.classList.add("visible");
+return;
+}
+
+if (location.protocol !== "file:") return;
+
+text.textContent = "Checking the repository for a newer version...";
+download.style.display = "none";
+message.classList.add("visible");
+
+try {
+const response = await fetch(REPO_VERSION_URL + "?time=" + Date.now(), {cache: "no-store"});
+if (!response.ok) throw new Error("Version check returned " + response.status);
+const latest = await response.json();
+
+if (latest.version !== LOCAL_BUILD_VERSION) {
+text.textContent = "A newer version of Gams is available.";
+download.style.display = "inline-block";
+} else {
+text.textContent = "This is the latest version of Gams.";
+}
+} catch (error) {
+text.textContent = "The latest version could not be checked. Connect to the internet and reload to try again.";
+}
+})();
 </script>
 </body>
 </html>
