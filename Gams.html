@@ -791,8 +791,19 @@ applyDisguise();
 };
 </script>
 <script>
-const LOCAL_BUILD_VERSION = "2026.07.20.6";
+const LOCAL_BUILD_VERSION = "2026.07.20.7";
 const REPO_VERSION_URL = "https://raw.githubusercontent.com/hatrix1307/Gams-Continued/main/site-version.json";
+
+function compareBuildVersions(left, right) {
+const leftParts = String(left).split(".").map(part => Number.parseInt(part, 10) || 0);
+const rightParts = String(right).split(".").map(part => Number.parseInt(part, 10) || 0);
+const length = Math.max(leftParts.length, rightParts.length);
+for (let index = 0; index < length; index++) {
+const difference = (leftParts[index] || 0) - (rightParts[index] || 0);
+if (difference) return Math.sign(difference);
+}
+return 0;
+}
 
 (async function showRepositoryMessage() {
 const message = document.getElementById("repoMessage");
@@ -819,7 +830,7 @@ const latest = await response.json();
 
 const latestVersion = String(latest.version || "").trim();
 const localVersion = String(LOCAL_BUILD_VERSION).trim();
-if (latestVersion && latestVersion !== localVersion) {
+if (latestVersion && compareBuildVersions(latestVersion, localVersion) > 0) {
 text.textContent = "A newer version of Gams is available (installed: " + localVersion + ", latest: " + latestVersion + "). Select your existing folder to update only changed files.";
 actions.style.display = "flex";
 } else {
