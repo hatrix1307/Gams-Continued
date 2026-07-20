@@ -1,0 +1,1 @@
+function a(){return null}function n(){return null}function t(){return"../api/board"}function o(){return t().replace(/\/board\/?$/,"/challenge")}function c(){return t().replace(/\/board\/?$/,"/ghost")}export{n as a,t as b,o as c,c as g,a as s};

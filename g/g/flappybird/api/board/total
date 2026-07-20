@@ -1,0 +1,1 @@
+[{"schema":{"elements":[{"name":{"some":"total"},"algebraic_type":{"U32":[]}}]},"rows":[[140613]],"total_duration_micros":165,"stats":{"rows_inserted":0,"rows_deleted":0,"rows_updated":0}}]

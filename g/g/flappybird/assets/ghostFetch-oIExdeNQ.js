@@ -1,0 +1,1 @@
+import{b as o}from"./config-DFJTa-qV.js";async function n(t){if(!t.ok)throw new Error(`ghost query failed: ${t.status}`);return(await t.json())[0]?.rows??[]}function r(t){const a=t[0];return a?{name:a[0],score:a[1],seed:a[2],flaps:a[3],simVersion:a[5]??1}:null}async function e(){const t=o();return r(await n(await fetch(`${t}/ghost-daily`)))}export{e as fetchDailyWinnerGhost};

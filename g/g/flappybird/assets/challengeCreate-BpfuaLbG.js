@@ -1,0 +1,1 @@
+import{m as t}from"./index-buPetfY7.js";async function i(l,e,n=t){const a=n();return await l.callReducer("create_challenge_versioned",[a,e.seed,[...e.flaps],e.simVersion]),a}export{i as createChallenge};
