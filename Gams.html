@@ -201,6 +201,30 @@ text-decoration: none;
 filter: brightness(1.15);
 }
 
+button.repo-download {
+font: inherit;
+cursor: pointer;
+}
+
+button.repo-download:disabled {
+cursor: wait;
+opacity: .65;
+}
+
+.repo-actions {
+display: flex;
+flex: 0 0 auto;
+align-items: center;
+gap: 8px;
+}
+
+#repoUpdateStatus:not(:empty) {
+display: block;
+margin-top: 6px;
+font-size: .9em;
+opacity: .8;
+}
+
 @media (max-width: 600px) {
 .repo-message {
 align-items: stretch;
@@ -224,8 +248,11 @@ text-align: center;
 </header>
 
 <aside class="repo-message" id="repoMessage" aria-live="polite">
-<p id="repoMessageText"></p>
-<a class="repo-download" id="repoDownload" href="https://codeload.github.com/hatrix1307/Gams-Continued/zip/refs/heads/main" download="Gams-Continued-main.zip">Download latest version</a>
+<div><p id="repoMessageText"></p><span id="repoUpdateStatus"></span></div>
+<div class="repo-actions">
+<button class="repo-download" id="repoUpdate" type="button">Update existing folder</button>
+<a class="repo-download" id="repoDownload" href="https://codeload.github.com/hatrix1307/Gams-Continued/zip/refs/heads/main" download="Gams-Continued-main.zip">Download full ZIP</a>
+</div>
 </aside>
 
 <label>Dark Mode:</label>
@@ -764,7 +791,7 @@ applyDisguise();
 };
 </script>
 <script>
-const LOCAL_BUILD_VERSION = "2026.07.20.3";
+const LOCAL_BUILD_VERSION = "2026.07.20.4";
 const REPO_VERSION_URL = "https://raw.githubusercontent.com/hatrix1307/Gams-Continued/main/site-version.json";
 
 (async function showRepositoryMessage() {
@@ -773,7 +800,7 @@ const text = document.getElementById("repoMessageText");
 const download = document.getElementById("repoDownload");
 
 if (location.protocol === "https:") {
-text.textContent = "Download Gams for offline use. This downloads the latest repository archive without leaving this page.";
+text.textContent = "Update an existing Gams folder by downloading only changed files, or download the complete ZIP.";
 message.classList.add("visible");
 return;
 }
@@ -790,7 +817,7 @@ if (!response.ok) throw new Error("Version check returned " + response.status);
 const latest = await response.json();
 
 if (latest.version !== LOCAL_BUILD_VERSION) {
-text.textContent = "A newer version of Gams is available.";
+text.textContent = "A newer version of Gams is available. Select your existing folder to update only changed files.";
 download.style.display = "inline-block";
 } else {
 text.innerHTML = 'You are on the <span class="latest-version">latest</span> version of Gams-Continued';
@@ -800,5 +827,6 @@ text.textContent = "The latest version could not be checked. Connect to the inte
 }
 })();
 </script>
+<script src="assets/web-updater.js"></script>
 </body>
 </html>
